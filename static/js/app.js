@@ -9,6 +9,7 @@
   // Application State
   const state = {
     currentFeaturedQuote: null,
+    displayedQuotes: [],
     activeCategory: '',
     activeAuthor: '',
     searchQuery: '',
@@ -33,6 +34,7 @@
     btnClearSearch: document.getElementById('btnClearSearch'),
     authorSelect: document.getElementById('authorSelect'),
     btnResetFilters: document.getElementById('btnResetFilters'),
+    btnExportCsv: document.getElementById('btnExportCsv'),
     categoryPills: document.getElementById('categoryPills'),
     resultsCount: document.getElementById('resultsCount'),
 
@@ -109,7 +111,7 @@
   /**
    * Copy Text to Clipboard
    */
-  async function copyText(text) {
+  async function copyText(text, triggerBtn = null) {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
@@ -125,10 +127,59 @@
         document.body.removeChild(textarea);
       }
       showToast('Copied to clipboard!');
+
+      if (triggerBtn) {
+        const labelEl = triggerBtn.querySelector('span');
+        const originalText = labelEl ? labelEl.textContent : '';
+        triggerBtn.classList.add('copied');
+        if (labelEl) labelEl.textContent = 'Copied!';
+        setTimeout(() => {
+          triggerBtn.classList.remove('copied');
+          if (labelEl) labelEl.textContent = originalText;
+        }, 1500);
+      }
     } catch (err) {
       console.error('Clipboard copy failed:', err);
       showToast('Could not copy to clipboard');
     }
+  }
+
+  /**
+   * Export Displayed Quotes to CSV
+   */
+  function exportQuotesToCSV() {
+    const quotes = state.displayedQuotes || [];
+    if (quotes.length === 0) {
+      showToast('No quotes available to export');
+      return;
+    }
+
+    const escapeCsvField = (value) => {
+      const str = value == null ? '' : String(value);
+      return `"${str.replace(/"/g, '""')}"`;
+    };
+
+    const headers = ['ID', 'Quote', 'Author', 'Category'];
+    const rows = quotes.map(q => [
+      escapeCsvField(q.id),
+      escapeCsvField(q.quote),
+      escapeCsvField(q.author),
+      escapeCsvField(q.category)
+    ].join(','));
+
+    const csvContent = [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'famous_quotes.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast(`Exported ${quotes.length} quote${quotes.length === 1 ? '' : 's'} to CSV!`);
   }
 
   /**
@@ -211,6 +262,7 @@
    */
   function renderQuotesGrid(quotes) {
     DOM.quotesGrid.innerHTML = '';
+    state.displayedQuotes = quotes || [];
 
     if (!quotes || quotes.length === 0) {
       DOM.emptyState.hidden = false;
@@ -240,8 +292,9 @@
         <div class="quote-card-footer">
           <cite class="quote-card-author">— ${escapeHTML(q.author)}</cite>
           <div class="quote-card-actions">
-            <button type="button" class="btn-card-action btn-copy-card" title="Copy quote" aria-label="Copy quote">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <button type="button" class="btn-card-action btn-copy-card" title="Copy to Clipboard" aria-label="Copy quote to clipboard">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy to Clipboard</span>
             </button>
           </div>
         </div>
@@ -250,7 +303,7 @@
       // Copy handler for card
       const btnCopy = card.querySelector('.btn-copy-card');
       btnCopy.addEventListener('click', () => {
-        copyText(`"${q.quote}" — ${q.author}`);
+        copyText(`"${q.quote}" — ${q.author}`, btnCopy);
       });
 
       fragment.appendChild(card);
@@ -331,9 +384,14 @@
     // Copy Featured Quote
     DOM.btnCopyQuote.addEventListener('click', () => {
       if (state.currentFeaturedQuote) {
-        copyText(`"${state.currentFeaturedQuote.quote}" — ${state.currentFeaturedQuote.author}`);
+        copyText(`"${state.currentFeaturedQuote.quote}" — ${state.currentFeaturedQuote.author}`, DOM.btnCopyQuote);
       }
     });
+
+    // Export to CSV Button
+    if (DOM.btnExportCsv) {
+      DOM.btnExportCsv.addEventListener('click', exportQuotesToCSV);
+    }
 
     // Search Input with Debounce
     DOM.searchInput.addEventListener('input', (e) => {

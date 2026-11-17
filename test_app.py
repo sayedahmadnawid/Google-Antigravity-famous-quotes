@@ -128,3 +128,27 @@ def test_get_authors(client):
     # Check that authors are sorted alphabetically
     author_names = [a["name"] for a in data["authors"]]
     assert author_names == sorted(author_names, key=lambda s: s.lower())
+
+
+def test_export_quotes_csv(client):
+    """Test exporting quotes to CSV."""
+    response = client.get("/api/quotes/export")
+    assert response.status_code == 200
+    assert response.mimetype == "text/csv"
+    assert "attachment; filename=famous_quotes.csv" in response.headers.get("Content-Disposition", "")
+    lines = response.get_data(as_text=True).strip().splitlines()
+    assert lines[0] == "ID,Quote,Author,Category"
+    assert len(lines) == 101  # Header + 100 quotes
+
+
+def test_export_quotes_csv_filtered(client):
+    """Test exporting filtered quotes to CSV."""
+    response = client.get("/api/quotes/export?category=Science")
+    assert response.status_code == 200
+    assert response.mimetype == "text/csv"
+    lines = response.get_data(as_text=True).strip().splitlines()
+    assert lines[0] == "ID,Quote,Author,Category"
+    assert len(lines) > 1
+    for line in lines[1:]:
+        assert line.endswith(",Science")
+
