@@ -25,6 +25,23 @@
             <p class="subtitle">100 curated insights across philosophy, science, leadership &amp; life</p>
           </div>
         </div>
+
+        <button
+          type="button"
+          id="themeToggle"
+          class="theme-toggle"
+          role="switch"
+          aria-checked="false"
+          aria-label="Toggle light mode"
+          title="Switch between dark and light mode"
+        >
+          <span class="theme-toggle-icon theme-icon-dark" aria-hidden="true">🌙</span>
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-toggle-thumb"></span>
+          </span>
+          <span class="theme-toggle-icon theme-icon-light" aria-hidden="true">☀️</span>
+          <span class="theme-toggle-label" id="themeToggleLabel">Light Mode</span>
+        </button>
       </div>
     </header>
 
@@ -36,7 +53,7 @@
           
           <div class="featured-content">
             <div class="featured-top-bar">
-              <span class="badge" id="featuredCategory">Category</span>
+              <button type="button" class="badge badge-clickable" id="featuredCategory" title="Filter by this category">Category</button>
               <span class="quote-id-tag" id="featuredQuoteId">Quote #1</span>
             </div>
 
@@ -44,10 +61,12 @@
               <p id="featuredQuoteText">Loading inspiring quote...</p>
             </blockquote>
 
-            <cite class="featured-author" id="featuredAuthor">— Author</cite>
+            <cite class="featured-author">
+              <button type="button" class="author-link" id="featuredAuthor" title="Filter by this author">— Author</button>
+            </cite>
 
             <div class="featured-actions">
-              <button type="button" class="btn btn-primary" id="btnNewRandomQuote" title="Get another random quote">
+              <button type="button" class="btn btn-primary" id="btnNewRandomQuote" title="Get another random quote (Shortcut: R)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 <span>New Random Quote</span>
               </button>
@@ -55,6 +74,11 @@
               <button type="button" class="btn btn-secondary" id="btnCopyQuote" title="Copy quote to clipboard">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <span>Copy to Clipboard</span>
+              </button>
+
+              <button type="button" class="btn btn-secondary" id="btnFavoriteFeatured" aria-pressed="false" title="Save quote to favorites">
+                <span class="heart-icon" aria-hidden="true">♡</span>
+                <span id="featuredFavoriteLabel">Save</span>
               </button>
 
               <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" id="btnTweetQuote" title="Share quote on X">
@@ -69,9 +93,14 @@
       <!-- Search & Filter Controls -->
       <section class="controls-section">
         <div class="controls-header">
-          <h2>Search &amp; Explore</h2>
+          <div class="controls-title-group">
+            <h2>Search &amp; Explore</h2>
+            <span class="shortcut-hint" aria-label="Keyboard shortcuts: press slash to search, R for random quote">
+              <kbd>/</kbd> Search &bull; <kbd>R</kbd> Random
+            </span>
+          </div>
           <div class="results-meta">
-            <span id="resultsCount">Showing 100 quotes</span>
+            <span id="resultsCount" aria-live="polite">Showing 100 quotes</span>
           </div>
         </div>
 
@@ -83,11 +112,11 @@
                 type="text" 
                 id="searchInput" 
                 class="form-control" 
-                placeholder="Search quotes, keywords, or authors..." 
+                placeholder="Search quotes, keywords, or authors... (Press /)" 
                 aria-label="Search quotes or authors"
                 autocomplete="off"
               >
-              <button type="button" id="btnClearSearch" class="btn-clear" aria-label="Clear search" hidden>&times;</button>
+              <button type="button" id="btnClearSearch" class="btn-clear" aria-label="Clear search" title="Clear search (Esc)" hidden>&times;</button>
             </div>
 
             <div class="select-group">
@@ -99,14 +128,21 @@
                 </select>
               </div>
 
-              <button type="button" class="btn btn-outline" id="btnResetFilters" title="Reset all filters">
-                Reset
-              </button>
+              <div class="secondary-actions">
+                <button type="button" class="btn btn-outline" id="btnToggleFavorites" aria-pressed="false" title="Show only saved favorite quotes">
+                  <span aria-hidden="true">♥</span>
+                  <span>Saved (<span id="favoritesCount">0</span>)</span>
+                </button>
 
-              <button type="button" class="btn btn-secondary" id="btnExportCsv" title="Export displayed quotes to CSV">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Export to CSV</span>
-              </button>
+                <button type="button" class="btn btn-outline" id="btnResetFilters" title="Reset all filters">
+                  Reset
+                </button>
+
+                <button type="button" class="btn btn-secondary" id="btnExportCsv" title="Export displayed quotes to CSV">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>Export to CSV</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -114,28 +150,54 @@
           <div class="categories-bar">
             <span class="categories-label">Categories:</span>
             <div class="category-pills" id="categoryPills" role="radiogroup" aria-label="Filter by category">
-              <button type="button" class="pill-btn active" data-category="">All</button>
+              <button type="button" class="pill-btn active" role="radio" aria-checked="true" data-category="">All</button>
               <!-- Categories populated dynamically via JS -->
             </div>
+          </div>
+
+          <!-- Active Filter Summary Chips -->
+          <div id="activeFiltersBar" class="active-filters-bar" hidden>
+            <span class="active-filters-label">Active filters:</span>
+            <div id="activeFilterChips" class="active-filter-chips"></div>
           </div>
         </div>
       </section>
 
       <!-- Quotes Gallery / List -->
       <section class="quotes-section">
-        <div id="quotesGrid" class="quotes-grid">
+        <div id="quotesGrid" class="quotes-grid" aria-live="polite">
           <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Pagination / Load More -->
+        <div id="loadMoreContainer" class="load-more-container" hidden>
+          <button type="button" class="btn btn-secondary" id="btnLoadMore">
+            Load More Quotes
+          </button>
         </div>
 
         <!-- Empty state when no matches -->
         <div id="emptyState" class="empty-state" hidden>
           <div class="empty-state-icon">🔍</div>
-          <h3>No quotes found</h3>
-          <p>We couldn't find any quotes matching your current filters.</p>
+          <h3 id="emptyStateTitle">No quotes found</h3>
+          <p id="emptyStateMessage">We couldn't find any quotes matching your current filters.</p>
           <button type="button" class="btn btn-primary" id="btnEmptyReset">Clear Filters</button>
+        </div>
+
+        <!-- Network / Server Error State -->
+        <div id="errorState" class="empty-state error-state" role="alert" hidden>
+          <div class="empty-state-icon">⚠️</div>
+          <h3>Unable to load quotes</h3>
+          <p id="errorStateMessage">A network or server error occurred while fetching quotes. Please check your connection and try again.</p>
+          <button type="button" class="btn btn-primary" id="btnRetryFetch">Retry</button>
         </div>
       </section>
     </main>
+
+    <!-- Floating Back to Top Button -->
+    <button type="button" id="btnBackToTop" class="btn-back-to-top" aria-label="Back to top" title="Back to top" hidden>
+      ↑
+    </button>
 
     <!-- Footer -->
     <footer class="footer">
