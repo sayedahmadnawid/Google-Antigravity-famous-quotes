@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Famous Quotes & Wisdom | 100 Timeless Quotes</title>
+  <meta name="description" content="Explore 100 famous quotes from history's greatest thinkers, scientists, leaders, and philosophers. Search by author or category and discover daily inspiration.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied to clipboard!</div>
+
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-container">
+        <div class="logo">
+          <span class="logo-mark">“</span>
+          <div>
+            <h1>Famous Quotes</h1>
+            <p class="subtitle">100 curated insights across philosophy, science, leadership &amp; life</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Hero: Featured / Random Quote Card -->
+      <section class="hero-section">
+        <div class="card featured-card" id="featuredCard">
+          <div class="card-quote-mark" aria-hidden="true">“</div>
+          
+          <div class="featured-content">
+            <div class="featured-top-bar">
+              <span class="badge" id="featuredCategory">Category</span>
+              <span class="quote-id-tag" id="featuredQuoteId">Quote #1</span>
+            </div>
+
+            <blockquote class="featured-quote">
+              <p id="featuredQuoteText">Loading inspiring quote...</p>
+            </blockquote>
+
+            <cite class="featured-author" id="featuredAuthor">— Author</cite>
+
+            <div class="featured-actions">
+              <button type="button" class="btn btn-primary" id="btnNewRandomQuote" title="Get another random quote">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>New Random Quote</span>
+              </button>
+
+              <button type="button" class="btn btn-secondary" id="btnCopyQuote" title="Copy quote to clipboard">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+
+              <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" id="btnTweetQuote" title="Share quote on X">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <span>Share</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search & Filter Controls -->
+      <section class="controls-section">
+        <div class="controls-header">
+          <h2>Search &amp; Explore</h2>
+          <div class="results-meta">
+            <span id="resultsCount">Showing 100 quotes</span>
+          </div>
+        </div>
+
+        <div class="controls-card">
+          <div class="search-row">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input 
+                type="text" 
+                id="searchInput" 
+                class="form-control" 
+                placeholder="Search quotes, keywords, or authors..." 
+                aria-label="Search quotes or authors"
+                autocomplete="off"
+              >
+              <button type="button" id="btnClearSearch" class="btn-clear" aria-label="Clear search" hidden>&times;</button>
+            </div>
+
+            <div class="select-group">
+              <div class="select-wrapper">
+                <label for="authorSelect" class="sr-only">Filter by author</label>
+                <select id="authorSelect" class="form-control select-control" aria-label="Filter by author">
+                  <option value="">All Authors</option>
+                  <!-- Populated dynamically via JS -->
+                </select>
+              </div>
+
+              <button type="button" class="btn btn-outline" id="btnResetFilters" title="Reset all filters">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="categories-bar">
+            <span class="categories-label">Categories:</span>
+            <div class="category-pills" id="categoryPills" role="radiogroup" aria-label="Filter by category">
+              <button type="button" class="pill-btn active" data-category="">All</button>
+              <!-- Categories populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quotes Gallery / List -->
+      <section class="quotes-section">
+        <div id="quotesGrid" class="quotes-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Empty state when no matches -->
+        <div id="emptyState" class="empty-state" hidden>
+          <div class="empty-state-icon">🔍</div>
+          <h3>No quotes found</h3>
+          <p>We couldn't find any quotes matching your current filters.</p>
+          <button type="button" class="btn btn-primary" id="btnEmptyReset">Clear Filters</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <p>100 Quotes Collection &bull; Built with Flask &amp; Vanilla JavaScript</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
